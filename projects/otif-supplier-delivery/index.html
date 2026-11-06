@@ -3,453 +3,446 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Supplier Delivery (OTIF) Review | Danny Bui</title>
-<meta name="description" content="A Power BI review of supplier delivery performance for a lubricants manufacturer: 2,061 purchase order lines, 39 suppliers, US$91M of inbound material." />
+<title>Supplier Delivery Performance Review | Danny Bui</title>
+<meta name="description" content="Power BI review of supplier on-time-in-full (OTIF) performance: 2,061 purchase order lines, 39 suppliers, US$91.4M of inbound material." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet" />
 <style>
 :root{
-  --bg:#F3F1EC; --sheet:#FFFFFF; --ink:#1D262B; --ink-2:#4F5B62; --ink-3:#7A858B;
-  --rule:#DCD8CF; --rule-2:#ECE9E2;
-  --blue:#2A6496; --blue-soft:#E6EEF5;
-  --rust:#C0602F; --rust-soft:#F6E7DD;
-  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
-  --sans:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+  --ink:#141414; --ink-2:#444; --ink-3:#6b6b6b;
+  --rule:#cfcfcf; --rule-2:#e6e6e6; --shade:#f4f4f2;
+  --page:#ffffff;
+  --s1:#28609E; --s2:#B8862B;
+  --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --sans:'Source Sans 3','Helvetica Neue',Arial,sans-serif;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--sans)}
-a{color:var(--blue)}
-a:hover{color:var(--rust)}
+body{margin:0;background:var(--page);color:var(--ink);font:17px/1.6 var(--serif)}
+a{color:var(--s1);text-underline-offset:2px}
+a:hover{color:var(--ink)}
 button{font:inherit;cursor:pointer}
+code{font:14px/1 ui-monospace,Menlo,Consolas,monospace;background:var(--shade);padding:1px 4px}
 
-/* top strip */
-.strip{background:var(--ink);color:#E9ECEE;font:500 12px/1 var(--mono);letter-spacing:.04em}
-.strip .in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;justify-content:space-between;gap:16px;align-items:center}
-.strip a{color:#E9ECEE;text-decoration:none}
-.strip a:hover{color:#F2B48F}
+.topbar{border-bottom:1px solid var(--rule);font:14px/1 var(--sans)}
+.topbar .in{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;justify-content:space-between;gap:16px}
+.topbar a{color:var(--ink-2);text-decoration:none}
+.topbar a:hover{color:var(--ink);text-decoration:underline}
 
-/* layout */
-.frame{max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:210px minmax(0,1fr);gap:56px}
-aside.toc{position:sticky;top:0;align-self:start;padding:40px 0;max-height:100vh;overflow:auto}
-.toc .lbl{font:500 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:14px}
-.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--rule)}
-.toc li a{display:block;padding:7px 0 7px 14px;margin-left:-1px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:14px}
-.toc li a:hover{color:var(--ink)}
-.toc li a.on{border-left-color:var(--rust);color:var(--ink);font-weight:500}
-.toc .side-note{margin-top:28px;font-size:13px;color:var(--ink-3);line-height:1.5}
-main{padding:40px 0 80px;min-width:0}
+.layout{max-width:1120px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:64px}
 
-/* file header */
-.file{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:36px 40px}
-.file .kicker{font:500 12px/1 var(--mono);color:var(--rust);letter-spacing:.06em;text-transform:uppercase}
-.file h1{font-size:40px;line-height:1.12;font-weight:700;letter-spacing:-.01em;margin:14px 0 16px;max-width:20ch}
-.file .lede{font-size:18px;color:var(--ink-2);max-width:62ch;margin:0}
-.meta{display:grid;grid-template-columns:repeat(4,1fr);margin-top:30px;border-top:1px solid var(--rule)}
-.meta div{padding:14px 16px 0 0}
-.meta dt{font:500 11px/1.3 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
-.meta dd{margin:6px 0 0;font-size:14px}
+/* table of contents */
+nav.toc{position:sticky;top:0;align-self:start;padding:44px 0 24px;max-height:100vh;overflow:auto;font-family:var(--sans)}
+.toc h2{font:700 13px/1.2 var(--sans);margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
+.toc ol{list-style:none;margin:0;padding:0}
+.toc li{border-bottom:1px solid var(--rule-2)}
+.toc a{display:grid;grid-template-columns:30px 1fr;padding:7px 0;color:var(--ink-2);text-decoration:none;font-size:14.5px;line-height:1.35}
+.toc a .n{color:var(--ink-3)}
+.toc a:hover{color:var(--ink)}
+.toc a.on{color:var(--ink);font-weight:600}
+.toc a.on .n{color:var(--ink)}
+.toc li.sub a{grid-template-columns:30px 1fr;padding-left:14px;font-size:13.5px}
+.toc .note{font-size:13px;color:var(--ink-3);margin-top:18px;line-height:1.45}
 
-/* short version */
-.brief{margin-top:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:4px;background:var(--sheet)}
-.brief > div{padding:22px 22px 24px;border-right:1px solid var(--rule)}
-.brief > div:last-child{border-right:none}
-.brief .big{font:500 34px/1 var(--mono);letter-spacing:-.02em}
-.brief .big.rust{color:var(--rust)}
-.brief p{margin:10px 0 0;font-size:14px;color:var(--ink-2)}
+main{padding:44px 0 90px;min-width:0;max-width:760px}
 
-/* chapters */
-section.ch{padding-top:64px}
-.ch-no{font:500 12px/1 var(--mono);color:var(--ink-3);letter-spacing:.06em}
-.ch h2{font-size:28px;line-height:1.2;font-weight:600;margin:10px 0 14px;max-width:28ch}
-.ch p{max-width:66ch;margin:0 0 14px}
-.ch p.muted{color:var(--ink-2)}
-.ch h3{font-size:17px;font-weight:600;margin:28px 0 8px}
+/* title block */
+.title-block{border-top:5px solid var(--ink);padding-top:20px}
+.doc-type{font:600 14px/1.3 var(--sans);color:var(--ink-2);margin:0}
+h1{font:700 40px/1.15 var(--serif);margin:10px 0 14px;letter-spacing:-.005em}
+.subtitle{font:400 19px/1.5 var(--serif);color:var(--ink-2);margin:0 0 24px;font-style:italic}
+.doc-meta{width:100%;border-collapse:collapse;font:15px/1.4 var(--sans);margin:0 0 8px}
+.doc-meta th,.doc-meta td{text-align:left;padding:7px 0;border-top:1px solid var(--rule-2);vertical-align:top}
+.doc-meta th{width:150px;font-weight:600;color:var(--ink-2)}
+.doc-meta tr:last-child th,.doc-meta tr:last-child td{border-bottom:1px solid var(--rule-2)}
 
-/* definitions */
-.defs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 8px}
-.def{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:16px 18px}
-.def b{display:block;font:500 13px/1.3 var(--mono);color:var(--blue);margin-bottom:6px}
-.def span{font-size:14px;color:var(--ink-2)}
+/* sections */
+section{padding-top:52px}
+h2.sec{font:700 26px/1.25 var(--serif);margin:0 0 16px;padding-bottom:8px;border-bottom:1px solid var(--rule)}
+h2.sec .n{display:inline-block;min-width:38px}
+h3{font:600 20px/1.3 var(--serif);margin:34px 0 10px}
+h3 .n{display:inline-block;min-width:46px}
+p{margin:0 0 14px}
+ul.plain{margin:0 0 16px;padding-left:22px}
+ul.plain li{margin-bottom:6px}
 
-/* question table */
-.qtable{width:100%;border-collapse:collapse;margin:20px 0 6px;background:var(--sheet);border:1px solid var(--rule)}
-.qtable th,.qtable td{text-align:left;vertical-align:top;padding:14px 16px;border-bottom:1px solid var(--rule-2);font-size:14.5px}
-.qtable th{font:500 11px/1.3 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);background:#FAF9F6}
-.qtable td:first-child{font-weight:600;width:42%}
-.qtable td:last-child{color:var(--ink-2)}
+/* data tables */
+.tbl-wrap{overflow-x:auto;margin:18px 0 6px}
+table.data{width:100%;border-collapse:collapse;font:15px/1.4 var(--sans)}
+table.data caption{caption-side:top;text-align:left;font:600 14px/1.4 var(--sans);padding-bottom:8px;color:var(--ink)}
+table.data th,table.data td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--rule-2);white-space:nowrap}
+table.data thead th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);font-weight:600;font-size:14px}
+table.data th:first-child,table.data td:first-child{text-align:left;padding-left:0}
+table.data td.wrap,table.data th.wrap{white-space:normal;text-align:left}
+table.data tbody tr:last-child td{border-bottom:2px solid var(--ink)}
+table.data tr.em td{font-weight:600}
+table.data td.neg{color:var(--ink)}
+.src{font:13px/1.45 var(--sans);color:var(--ink-3);margin:6px 0 0}
 
-/* figure */
-figure.fig{margin:24px 0 10px;background:var(--sheet);border:1px solid var(--rule);border-radius:4px;padding:22px 22px 16px}
-.fig-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px}
-.fig-title{font-weight:600;font-size:15px}
-.fig-sub{font-size:13px;color:var(--ink-3)}
-figcaption{font-size:13px;color:var(--ink-3);margin-top:10px;border-top:1px solid var(--rule-2);padding-top:10px}
-.legend{display:flex;gap:16px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
-.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
-.seg{display:inline-flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
-.seg button{border:none;background:var(--sheet);padding:6px 12px;font-size:13px;color:var(--ink-2)}
-.seg button+button{border-left:1px solid var(--rule)}
-.seg button.on{background:var(--ink);color:#fff}
-.chart{position:relative}
+/* figures */
+figure.fig{margin:26px 0 8px}
+.fig-cap{font:600 14px/1.4 var(--sans);margin:0 0 2px}
+.fig-sub{font:14px/1.4 var(--sans);color:var(--ink-3);margin:0 0 12px}
+.fig-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;font:14px/1 var(--sans)}
+.key{display:flex;gap:18px;flex-wrap:wrap;color:var(--ink-2)}
+.key i{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.key i.dash{border-top:1px dashed var(--ink-3)}
+.toggle{display:inline-flex;border:1px solid var(--rule)}
+.toggle button{border:0;background:#fff;padding:6px 10px;font:14px/1 var(--sans);color:var(--ink-2)}
+.toggle button+button{border-left:1px solid var(--rule)}
+.toggle button.on{background:var(--ink);color:#fff}
+.chart{position:relative;border-top:1px solid var(--rule-2);padding-top:10px}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
-.chart text{font-family:var(--sans);fill:var(--ink-3);font-size:12px}
-.chart .lab{fill:var(--ink);font-size:12.5px}
-.chart .val{fill:var(--ink-2);font-family:var(--mono);font-size:12px}
-.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12.5px;line-height:1.45;padding:8px 10px;border-radius:4px;white-space:nowrap;opacity:0;transform:translate(-50%,-110%);transition:opacity .1s}
+.chart text{font-family:var(--sans);font-size:13px;fill:var(--ink-3)}
+.chart .lab{fill:var(--ink);}
+.chart .val{fill:var(--ink-2)}
+.tip{position:absolute;pointer-events:none;background:#fff;color:var(--ink);border:1px solid var(--ink);font:13px/1.45 var(--sans);padding:7px 9px;white-space:nowrap;opacity:0;transform:translate(-50%,-110%)}
 .tip b{font-weight:600}
-.tip .k{color:#AEB8BE}
+.tip .k{color:var(--ink-3)}
 
-/* pull note */
-.pull{border-left:3px solid var(--rust);background:var(--rust-soft);padding:14px 18px;margin:20px 0;max-width:66ch;font-size:15px}
-.pull.blue{border-left-color:var(--blue);background:var(--blue-soft)}
+/* key findings list */
+ol.findings{margin:6px 0 18px;padding-left:22px}
+ol.findings li{margin-bottom:10px;padding-left:4px}
+.note-box{border-left:3px solid var(--ink);padding:2px 0 2px 16px;margin:18px 0;color:var(--ink-2);font-style:italic}
 
-/* category table */
-.ctable{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
-.ctable th,.ctable td{padding:9px 10px;border-bottom:1px solid var(--rule-2);text-align:right;white-space:nowrap}
-.ctable th{font:500 11px/1.3 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);border-bottom:1px solid var(--rule)}
-.ctable th:first-child,.ctable td:first-child{text-align:left}
-.ctable td{font-family:var(--mono);font-size:13px}
-.ctable td:first-child{font-family:var(--sans);font-size:14px}
-.ctable tr.hl td{background:var(--rust-soft)}
-.scroll-x{overflow-x:auto}
-
-/* report tour */
-.embed{position:relative;width:100%;padding-top:62.5%;background:#E7E4DD;border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin-top:20px}
+/* report embed */
+.embed{position:relative;width:100%;padding-top:62.5%;border:1px solid var(--rule);margin:18px 0 6px;background:var(--shade)}
 .embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.tour{display:grid;grid-template-columns:200px 1fr;margin-top:18px;border:1px solid var(--rule);border-radius:4px;background:var(--sheet)}
-.tour-tabs{border-right:1px solid var(--rule);display:flex;flex-direction:column}
-.tour-tabs button{text-align:left;background:none;border:none;border-bottom:1px solid var(--rule-2);padding:13px 16px;font-size:14px;color:var(--ink-2)}
-.tour-tabs button span{display:block;font:500 11px/1 var(--mono);color:var(--ink-3);margin-bottom:5px}
-.tour-tabs button.on{background:var(--blue-soft);color:var(--ink);font-weight:500;box-shadow:inset 3px 0 0 var(--blue)}
-.tour-body{padding:18px 22px}
-.tour-body h4{margin:0 0 6px;font-size:16px}
-.tour-body p{margin:0 0 10px;font-size:14.5px;color:var(--ink-2)}
-.tour-body ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink-2)}
+table.pages td.wrap{font-size:14.5px}
 
 /* model */
 .model svg{display:block;width:100%;height:auto}
-.model text{font-family:var(--mono);font-size:12px;fill:var(--ink)}
-.model .tname{font-weight:500;font-size:13px}
-.model .fk{fill:var(--ink-3)}
-pre{background:#1D262B;color:#E3E7E9;border-radius:4px;padding:16px 18px;overflow-x:auto;font:13px/1.6 var(--mono);margin:14px 0}
-pre .c{color:#8C9AA2}
-pre .k{color:#F2B48F}
+.model text{font-family:var(--sans);font-size:13px;fill:var(--ink)}
+.model .t{font-weight:700}
+.model .f{fill:var(--ink-3)}
+pre{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--shade);padding:14px 16px;overflow-x:auto;font:13.5px/1.6 ui-monospace,Menlo,Consolas,monospace;margin:14px 0}
+pre .c{color:#6b6b6b}
 
-/* actions */
-.actions{counter-reset:a;list-style:none;padding:0;margin:20px 0 0}
-.actions li{counter-increment:a;position:relative;padding:16px 0 16px 52px;border-top:1px solid var(--rule)}
-.actions li:last-child{border-bottom:1px solid var(--rule)}
-.actions li::before{content:counter(a,decimal-leading-zero);position:absolute;left:0;top:16px;font:500 14px/1.4 var(--mono);color:var(--rust)}
-.actions b{display:block;margin-bottom:3px}
-.actions span{color:var(--ink-2);font-size:15px}
-.limits{margin-top:28px;background:var(--sheet);border:1px dashed var(--rule);border-radius:4px;padding:18px 22px;font-size:14.5px;color:var(--ink-2)}
-.limits b{color:var(--ink)}
-.limits ul{margin:8px 0 0;padding-left:18px}
+/* recommendations table */
+table.recs td{vertical-align:top}
+table.recs td:first-child{width:34px;color:var(--ink-3)}
+table.recs td.wrap b{display:block;margin-bottom:2px}
 
-footer.end{border-top:1px solid var(--rule);margin-top:72px;padding-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--ink-3)}
+.end{margin-top:64px;padding-top:14px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font:14px/1.4 var(--sans);color:var(--ink-3)}
 
 @media (max-width:980px){
-  .frame{grid-template-columns:1fr;gap:0}
-  aside.toc{display:none}
+  .layout{grid-template-columns:1fr;gap:0}
+  nav.toc{position:static;max-height:none;padding:28px 0 0}
+  main{padding-top:28px}
 }
-@media (max-width:720px){
-  .strip .in{padding:12px 16px}
-  .frame{padding:0 16px}
-  .file{padding:24px 20px}
-  .file h1{font-size:30px}
-  .meta{grid-template-columns:1fr 1fr}
-  .brief{grid-template-columns:1fr}
-  .brief > div{border-right:none;border-bottom:1px solid var(--rule)}
-  .brief > div:last-child{border-bottom:none}
-  .defs{grid-template-columns:1fr}
-  .qtable td:first-child{width:auto}
-  .qtable,.qtable tbody,.qtable tr,.qtable td{display:block;width:100%}
-  .qtable thead{display:none}
-  .qtable td{border-bottom:none;padding:4px 14px}
-  .qtable tr{border-bottom:1px solid var(--rule-2);padding:10px 0}
-  figure.fig{padding:16px 14px 12px}
-  .tour{grid-template-columns:1fr}
-  .tour-tabs{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--rule)}
-  .tour-tabs button{border-bottom:none;border-right:1px solid var(--rule-2);white-space:nowrap}
-  .embed{padding-top:75%}
-  .ch h2{font-size:24px}
-  .chart{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:640px){
+  body{font-size:16px}
+  .topbar .in,.layout{padding-left:16px;padding-right:16px}
+  h1{font-size:30px}
+  .subtitle{font-size:17px}
+  .doc-meta th{width:110px}
+  h2.sec{font-size:22px}
+  h3{font-size:18px}
+  .chart{overflow-x:auto}
   .chart svg{min-width:600px}
-  figcaption::before{content:'Swipe the chart sideways to see it all. ';}
 }
 </style>
 </head>
 <body>
 
-<div class="strip"><div class="in">
-  <a href="../../index.html">&larr; Portfolio</a>
-  <a href="#report">Open the live report &darr;</a>
+<div class="topbar"><div class="in">
+  <a href="../../index.html">&larr; Back to portfolio</a>
+  <a href="#report">Interactive Power BI report</a>
 </div></div>
 
-<div class="frame">
-<aside class="toc" aria-label="Contents">
-  <div class="lbl">Contents</div>
+<div class="layout">
+
+<nav class="toc" aria-label="Table of contents">
+  <h2>Contents</h2>
   <ol>
-    <li><a href="#context">Context</a></li>
-    <li><a href="#questions">Business questions</a></li>
-    <li><a href="#weighting">73% or 47%?</a></li>
-    <li><a href="#suppliers">Where the risk sits</a></li>
-    <li><a href="#timing">How late, and why</a></li>
-    <li><a href="#report">The report</a></li>
-    <li><a href="#build">How it's built</a></li>
-    <li><a href="#next">What I'd do next</a></li>
+    <li><a href="#summary"><span class="n">1</span>Executive summary</a></li>
+    <li><a href="#background"><span class="n">2</span>Background and scope</a></li>
+    <li><a href="#questions"><span class="n">3</span>Business questions</a></li>
+    <li><a href="#method"><span class="n">4</span>Methodology and KPI definitions</a></li>
+    <li><a href="#findings"><span class="n">5</span>Findings</a></li>
+    <li class="sub"><a href="#f1"><span class="n">5.1</span>Line-based vs value-weighted OTIF</a></li>
+    <li class="sub"><a href="#f2"><span class="n">5.2</span>Supplier concentration of risk</a></li>
+    <li class="sub"><a href="#f3"><span class="n">5.3</span>Delivery delay and lead time</a></li>
+    <li><a href="#recs"><span class="n">6</span>Recommendations</a></li>
+    <li><a href="#report"><span class="n">7</span>Power BI report</a></li>
+    <li><a href="#model"><span class="n">8</span>Data model and DAX measures</a></li>
+    <li><a href="#limits"><span class="n">9</span>Limitations</a></li>
   </ol>
-  <p class="side-note">Supplier names are anonymised. Figures are from the purchase order export behind the report.</p>
-</aside>
+  <p class="note">Supplier names have been anonymised. All figures are taken from the purchase order data behind the Power BI report.</p>
+</nav>
 
 <main>
 
-<header class="file">
-  <div class="kicker">Case study 02 &middot; Procurement analytics</div>
-  <h1>Which suppliers are putting production at risk?</h1>
-  <p class="lede">A delivery performance review for the purchasing team of a lubricants manufacturer in Southeast Asia. I took a raw purchase order export, defined what "on time, in full" should mean for this business, and built a Power BI report the buyers can use in their weekly supplier calls.</p>
-  <dl class="meta">
-    <div><dt>Data</dt><dd>2,061 PO lines<br>612 purchase orders</dd></div>
-    <div><dt>Scope</dt><dd>39 suppliers<br>US$91.4M inbound</dd></div>
-    <div><dt>Period</dt><dd>Deliveries due<br>Jan to Aug 2026</dd></div>
-    <div><dt>Tools</dt><dd>Excel, Power Query<br>Power BI, DAX</dd></div>
-  </dl>
+<header class="title-block">
+  <p class="doc-type">Case study &middot; Procurement analytics &middot; Power BI</p>
+  <h1>Supplier Delivery Performance Review</h1>
+  <p class="subtitle">On-time-in-full (OTIF) analysis of inbound raw materials for a lubricants manufacturer in Southeast Asia</p>
+  <table class="doc-meta">
+    <tr><th>Prepared by</th><td>Danny Bui</td></tr>
+    <tr><th>Data</th><td>2,061 purchase order lines across 612 purchase orders, 39 suppliers and 263 materials</td></tr>
+    <tr><th>Period</th><td>Deliveries due January to August 2026</td></tr>
+    <tr><th>Inbound value</th><td>US$91.4 million</td></tr>
+    <tr><th>Tools</th><td>Excel, Power Query, Power BI, DAX</td></tr>
+  </table>
 </header>
 
-<div class="brief" aria-label="Summary">
-  <div><div class="big">72.8%</div><p>of PO lines were confirmed on time and in full. The team's target is 95%.</p></div>
-  <div><div class="big rust">47.2%</div><p>is the same score weighted by dollar value. More than half the spend did not meet the standard.</p></div>
-  <div><div class="big">2 of 39</div><p>suppliers, both base oil, account for 74% of the US$48.3M sitting on late or short lines.</p></div>
-</div>
+<!-- 1 -->
+<section id="summary">
+  <h2 class="sec"><span class="n">1</span>Executive summary</h2>
+  <p>This review measures how reliably suppliers commit to the delivery dates and quantities requested by the purchasing team. Performance is below the 95% OTIF target on every measure, and the gap is considerably larger when purchase order lines are weighted by value.</p>
 
-<!-- 01 -->
-<section class="ch" id="context">
-  <div class="ch-no">01 &middot; Context</div>
-  <h2>A blending plant can't run without its base oil</h2>
-  <p>Lubricants are mostly base oil, with a smaller share of additive packages, then bottled and labelled. If one of those inputs arrives late, the blend schedule moves, and sometimes a customer order moves with it. The purchasing team manages around 40 suppliers across Singapore, Malaysia, China, Korea and Europe, and most of the inbound value comes by sea.</p>
-  <p>Before this report, delivery performance was checked supplier by supplier in the ERP. There was no single number the team agreed on, and no easy way to see whether a bad month was one supplier or a wider problem.</p>
-  <p class="muted">So the first job was agreeing on definitions. These are the rules I wrote into the model:</p>
-  <div class="defs">
-    <div class="def"><b>On time</b><span>Supplier's confirmed ETA lands within &plusmn;7 days of the date we requested.</span></div>
-    <div class="def"><b>In full</b><span>Confirmed quantity is within &plusmn;5% of the ordered quantity.</span></div>
-    <div class="def"><b>OTIF</b><span>Both of the above on the same PO line. No confirmed date counts as a fail.</span></div>
-  </div>
-  <p class="muted">The score is measured at PO line level, because one order can carry several materials with different dates.</p>
-</section>
-
-<!-- 02 -->
-<section class="ch" id="questions">
-  <div class="ch-no">02 &middot; Business questions</div>
-  <h2>What the buyers wanted to know</h2>
-  <p>I sat down with the requirements as a list of questions, then checked each one had a page or a visual that answered it.</p>
-  <table class="qtable">
-    <thead><tr><th>Question</th><th>Why it matters</th></tr></thead>
+  <div class="tbl-wrap">
+  <table class="data">
+    <caption>Table 1. Headline KPIs, January to August 2026</caption>
+    <thead><tr><th>Measure</th><th>Result</th><th>Target</th><th>Gap</th></tr></thead>
     <tbody>
-      <tr><td>Are we close to the 95% OTIF target, and is it getting better or worse?</td><td>Sets the agenda for the monthly review with management.</td></tr>
-      <tr><td>Which suppliers carry the most value at risk?</td><td>Buyers have limited time for escalation calls. They need a ranked list.</td></tr>
-      <tr><td>When a line fails, is it the date or the quantity?</td><td>The fix is different. Late dates need planning or logistics work; short quantities need a commercial conversation.</td></tr>
-      <tr><td>Are our own requested dates realistic?</td><td>If we ask for delivery faster than the standard lead time, part of the "lateness" is ours.</td></tr>
-      <tr><td>Which open lines need chasing this week?</td><td>The operational view: what is still to arrive, from whom, and when.</td></tr>
+      <tr><td>OTIF (share of PO lines)</td><td>72.8%</td><td>95.0%</td><td>&minus;22.2 pts</td></tr>
+      <tr class="em"><td>OTIF (share of US$ value)</td><td>47.2%</td><td>95.0%</td><td>&minus;47.8 pts</td></tr>
+      <tr><td>On time (OTD)</td><td>73.6%</td><td>&ndash;</td><td>&ndash;</td></tr>
+      <tr><td>In full</td><td>96.0%</td><td>&ndash;</td><td>&ndash;</td></tr>
+      <tr><td>Value at risk (lines failing OTIF)</td><td>US$48.3M</td><td>&ndash;</td><td>&ndash;</td></tr>
+      <tr><td>Open lines still to be delivered</td><td>587 (US$24.3M)</td><td>&ndash;</td><td>&ndash;</td></tr>
     </tbody>
   </table>
+  </div>
+
+  <p style="margin-top:18px"><b>Key findings</b></p>
+  <ol class="findings">
+    <li>Line-based OTIF of 72.8% overstates performance. Weighted by value, OTIF is 47.2%, because high-value base oil lines fail more often than low-value additive lines.</li>
+    <li>Risk is concentrated. Two base oil suppliers account for 5% of lines, 47% of spend and 74% of value at risk.</li>
+    <li>Failures are driven by timing rather than quantity. 89% of failed lines missed the date window, and most were late by 8 to 14 days.</li>
+    <li>Lines requested at shorter notice than the standard lead time achieved 56% OTIF, compared with 84% for lines requested in line with it.</li>
+  </ol>
 </section>
 
-<!-- 03 -->
-<section class="ch" id="weighting">
-  <div class="ch-no">03 &middot; Finding one</div>
-  <h2>73% or 47%? It depends on what you count</h2>
-  <p>The usual way to report OTIF is to count lines: 1,501 of 2,061 lines passed, so 72.8%. That is a fair measure of how reliable suppliers are on an average order. But a US$5,000 drum of additive and a US$600,000 base oil shipment count the same.</p>
-  <p>Weighting each line by its value tells a different story. In January the two measures were close. From March onwards they split, and by August only 39% of the value due that month was confirmed on time and in full.</p>
+<!-- 2 -->
+<section id="background">
+  <h2 class="sec"><span class="n">2</span>Background and scope</h2>
+  <p>Lubricant production depends on two main inputs: base oil, which makes up most of the blend by volume and value, and additive packages. Packaging and a small volume of traded finished goods are also purchased. A late base oil delivery can delay the blending schedule and, in turn, customer orders.</p>
+  <p>The purchasing team manages around 40 suppliers in Singapore, Malaysia, China, Korea, Japan and Europe. Before this project, delivery performance was checked supplier by supplier in the ERP system, with no agreed KPI and no consolidated view across suppliers or months.</p>
+  <p>The scope covers all purchase order lines with a requested delivery date between January and August 2026. Each line is assessed once, against the supplier's confirmed ETA and confirmed quantity.</p>
+</section>
+
+<!-- 3 -->
+<section id="questions">
+  <h2 class="sec"><span class="n">3</span>Business questions</h2>
+  <div class="tbl-wrap">
+  <table class="data">
+    <caption>Table 2. Questions addressed and where they are answered</caption>
+    <thead><tr><th class="wrap">Question</th><th class="wrap">Purpose</th><th class="wrap">Report page</th></tr></thead>
+    <tbody>
+      <tr><td class="wrap">How does OTIF compare with the 95% target, and what is the trend?</td><td class="wrap">Monthly management review</td><td class="wrap">Overview</td></tr>
+      <tr><td class="wrap">Which suppliers carry the most value at risk?</td><td class="wrap">Prioritise supplier escalations</td><td class="wrap">Vendor scorecard</td></tr>
+      <tr><td class="wrap">Do failures come from dates or quantities?</td><td class="wrap">Choose between a planning and a commercial response</td><td class="wrap">Overview, Timing &amp; SLA</td></tr>
+      <tr><td class="wrap">Are requested dates consistent with standard lead times?</td><td class="wrap">Separate supplier delay from internal planning</td><td class="wrap">Timing &amp; SLA</td></tr>
+      <tr><td class="wrap">Which open lines need follow-up?</td><td class="wrap">Weekly expediting</td><td class="wrap">Line detail</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="method">
+  <h2 class="sec"><span class="n">4</span>Methodology and KPI definitions</h2>
+  <p>The source data is a purchase order line export from the ERP system. It was cleaned and prepared in Excel and Power Query, where a status flag (1 or 0) was calculated for each KPI on every line. The Power BI measures aggregate these flags, so each KPI is defined in one place.</p>
+  <div class="tbl-wrap">
+  <table class="data">
+    <caption>Table 3. KPI definitions</caption>
+    <thead><tr><th class="wrap">KPI</th><th class="wrap">Definition</th></tr></thead>
+    <tbody>
+      <tr><td class="wrap"><b>On time (OTD)</b></td><td class="wrap">Confirmed ETA within &plusmn;7 days of the requested date</td></tr>
+      <tr><td class="wrap"><b>In full</b></td><td class="wrap">Confirmed quantity within &plusmn;5% of the ordered quantity</td></tr>
+      <tr><td class="wrap"><b>OTIF</b></td><td class="wrap">Both conditions met on the same line; a line without a confirmed ETA counts as a failure</td></tr>
+      <tr><td class="wrap"><b>OTIF (US$)</b></td><td class="wrap">Value of OTIF lines divided by total value</td></tr>
+      <tr><td class="wrap"><b>Value at risk</b></td><td class="wrap">Total value of lines that failed OTIF</td></tr>
+      <tr><td class="wrap"><b>Lead-time compliance</b></td><td class="wrap">Requested date compared with PO date plus the material's standard lead time (SLA days), with &plusmn;7 days tolerance</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="src">Performance is measured at purchase order line level, because a single order can contain several materials with different dates.</p>
+</section>
+
+<!-- 5 -->
+<section id="findings">
+  <h2 class="sec"><span class="n">5</span>Findings</h2>
+
+  <h3 id="f1"><span class="n">5.1</span>Line-based vs value-weighted OTIF</h3>
+  <p>1,501 of 2,061 lines met OTIF, a rate of 72.8%. Measured by value, the rate is 47.2%. The two measures were close in January, but they diverged from March onwards, as the value-weighted rate fell to around 40% while the line-based rate stayed mostly in the 70s.</p>
 
   <figure class="fig">
-    <div class="fig-head">
-      <div>
-        <div class="fig-title">OTIF by month the delivery was due</div>
-        <div class="fig-sub">Jan to Aug 2026, percent of lines vs percent of US$ value</div>
-      </div>
-      <div class="legend"><span><i style="background:var(--blue)"></i>By line count</span><span><i style="background:var(--rust)"></i>By US$ value</span><span><i style="background:var(--ink-3);height:1px"></i>95% target</span></div>
+    <p class="fig-cap">Figure 1. Monthly OTIF by requested delivery month</p>
+    <p class="fig-sub">Percentage of PO lines and percentage of US$ value meeting OTIF</p>
+    <div class="fig-tools">
+      <div class="key"><span><i style="border-color:var(--s1)"></i>Share of lines</span><span><i style="border-color:var(--s2)"></i>Share of US$ value</span><span><i class="dash"></i>95% target</span></div>
     </div>
     <div class="chart" id="trend"></div>
-    <figcaption>Hover a month for detail. Value-weighted OTIF uses the <code>OTIF(USD)</code> measure shown in section 07.</figcaption>
+    <p class="src">Source: PO line data, January to August 2026. Hover over a month for values.</p>
   </figure>
 
-  <div class="pull">The line count hides the problem because the suppliers with the most lines are small-ticket additive suppliers who mostly deliver well. The big-ticket base oil lines are fewer, and they are the ones slipping.</div>
-</section>
+  <p>The difference is explained by the mix of lines. Additive suppliers issue many small, mostly reliable lines, which keeps the line count high. Base oil lines are fewer but larger, averaging about US$125,000 against US$20,000 for additives, and they fail more often.</p>
 
-<!-- 04 -->
-<section class="ch" id="suppliers">
-  <div class="ch-no">04 &middot; Finding two</div>
-  <h2>Two base oil suppliers carry most of the exposure</h2>
-  <p>"Value at risk" in the report is the dollar value of every line that failed OTIF. It totals US$48.3M. When I ranked suppliers by it, the list was very top-heavy.</p>
+  <div class="tbl-wrap">
+  <table class="data">
+    <caption>Table 4. Performance by material category</caption>
+    <thead><tr><th>Category</th><th>Lines</th><th>Spend</th><th>OTIF (lines)</th><th>Value at risk</th><th>Share of risk</th></tr></thead>
+    <tbody>
+      <tr class="em"><td>Base oil</td><td>493</td><td>$61.5M</td><td>57.6%</td><td>$41.8M</td><td>86.6%</td></tr>
+      <tr><td>Additives</td><td>1,341</td><td>$27.1M</td><td>81.8%</td><td>$5.4M</td><td>11.2%</td></tr>
+      <tr><td>Packaging</td><td>135</td><td>$1.8M</td><td>71.1%</td><td>$0.5M</td><td>1.1%</td></tr>
+      <tr><td>Finished goods</td><td>92</td><td>$0.9M</td><td>26.1%</td><td>$0.5M</td><td>1.1%</td></tr>
+      <tr><td>Total</td><td>2,061</td><td>$91.4M</td><td>72.8%</td><td>$48.3M</td><td>100%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="src">Finished goods show the lowest OTIF, but all 44 lines without a confirmed ETA come from one freight forwarder in this category, which points to a data entry issue rather than a supplier issue.</p>
+
+  <h3 id="f2"><span class="n">5.2</span>Supplier concentration of risk</h3>
+  <p>Ranking suppliers by value at risk shows a highly concentrated pattern. Supplier A delivered 39 lines worth US$23.7M, of which only 5 met OTIF. Supplier B reached 53% OTIF on US$19.0M of spend. Together they account for US$35.6M, or 74%, of total value at risk.</p>
 
   <figure class="fig">
-    <div class="fig-head">
-      <div>
-        <div class="fig-title">Value at risk by supplier, US$ millions</div>
-        <div class="fig-sub">Top 8 suppliers, the other 31 grouped</div>
-      </div>
-      <div class="seg" role="group" aria-label="Sort suppliers">
-        <button class="on" data-sort="var">Rank by value at risk</button>
-        <button data-sort="lines">Rank by number of lines</button>
+    <p class="fig-cap">Figure 2. Value at risk by supplier</p>
+    <p class="fig-sub">Top eight suppliers; remaining 31 suppliers grouped. Suppliers A and B shown in gold.</p>
+    <div class="fig-tools">
+      <div class="toggle" role="group" aria-label="Sort order">
+        <button class="on" data-sort="var">Value at risk (US$M)</button>
+        <button data-sort="lines">Number of lines</button>
       </div>
     </div>
     <div class="chart" id="suppliers-chart"></div>
-    <figcaption>Try ranking by number of lines. Supplier C has the most lines by far and an 87.5% OTIF, which is what drags the line-count average up.</figcaption>
+    <p class="src">Switching to number of lines shows that Supplier C, with 786 lines and 87.5% OTIF, has the largest influence on the line-based rate while carrying little value at risk.</p>
   </figure>
 
-  <p>Supplier A shipped 39 lines worth US$23.7M and only 5 of them were confirmed on time and in full. Supplier B is better at 53%, but its lines are large too. Together they are 5% of lines, 47% of spend and 74% of value at risk.</p>
-
-  <h3>By material category</h3>
-  <div class="scroll-x">
-  <table class="ctable">
-    <thead><tr><th>Category</th><th>Lines</th><th>Spend</th><th>OTIF (lines)</th><th>Value at risk</th></tr></thead>
-    <tbody>
-      <tr class="hl"><td>Base oil</td><td>493</td><td>$61.5M</td><td>57.6%</td><td>$41.8M</td></tr>
-      <tr><td>Additives</td><td>1,341</td><td>$27.1M</td><td>81.8%</td><td>$5.4M</td></tr>
-      <tr><td>Packaging</td><td>135</td><td>$1.8M</td><td>71.1%</td><td>$0.5M</td></tr>
-      <tr><td>Finished goods</td><td>92</td><td>$0.9M</td><td>26.1%</td><td>$0.5M</td></tr>
-    </tbody>
-  </table>
-  </div>
-  <p class="muted" style="margin-top:14px">Finished goods look the worst on paper, but every one of the 44 lines with no confirmed ETA comes from a single freight forwarder. That one is a data entry habit to fix before it is a supplier problem.</p>
-</section>
-
-<!-- 05 -->
-<section class="ch" id="timing">
-  <div class="ch-no">05 &middot; Finding three</div>
-  <h2>Lines fail on dates, mostly by a week or two</h2>
-  <p>In-full performance is strong at 96%. Of the 560 lines that failed OTIF, 500 failed on timing and only 16 on quantity alone. So the conversation with suppliers is about dates, not volumes.</p>
-  <p>The late lines are also not wildly late. Almost two thirds of them missed the window by 8 to 14 days.</p>
+  <h3 id="f3"><span class="n">5.3</span>Delivery delay and lead time</h3>
+  <p>Quantity performance is not a material issue: 96.0% of lines were confirmed in full. Of the 560 lines that failed OTIF, 500 failed on timing, 44 had no confirmed ETA and 16 failed on quantity alone.</p>
+  <p>Most delays are moderate. 64% of late lines were 8 to 14 days beyond the requested date, which is just outside the &plusmn;7 day tolerance.</p>
 
   <figure class="fig">
-    <div class="fig-head">
-      <div>
-        <div class="fig-title">Late lines by days past the requested date</div>
-        <div class="fig-sub">408 late lines; the &plusmn;7 day tolerance is already excluded</div>
-      </div>
-    </div>
+    <p class="fig-cap">Figure 3. Late lines by days beyond requested date</p>
+    <p class="fig-sub">408 late lines; the most common band shown in gold</p>
     <div class="chart" id="late-chart"></div>
   </figure>
 
-  <h3>Some of the lateness starts with us</h3>
-  <p>Every material has a standard lead time (the SLA). I compared the date each buyer requested against that lead time. About one in five lines (424) asked for delivery more than a week faster than the standard. Those lines passed OTIF only 56% of the time.</p>
+  <p>Requested dates were also compared with each material's standard lead time. 424 lines (21%) were requested more than seven days earlier than the standard lead time allows. These lines achieved 55.9% OTIF, compared with 83.6% for lines requested within the standard lead time. Part of the measured delay therefore originates in internal planning rather than supplier performance.</p>
 
   <figure class="fig">
-    <div class="fig-head">
-      <div>
-        <div class="fig-title">OTIF rate by how the requested date compares to standard lead time</div>
-        <div class="fig-sub">Percent of lines on time and in full</div>
-      </div>
-    </div>
+    <p class="fig-cap">Figure 4. OTIF rate by requested date compared with standard lead time</p>
+    <p class="fig-sub">Percentage of lines meeting OTIF; the underperforming group shown in gold</p>
     <div class="chart" id="sla-chart"></div>
-    <figcaption>"Within lead time" means the requested date was within &plusmn;7 days of PO date plus SLA days.</figcaption>
+    <p class="src">"Within lead time" means the requested date falls within &plusmn;7 days of PO date plus SLA days.</p>
   </figure>
-
-  <div class="pull blue">This changes the ask. Some of the improvement can come from buyers ordering earlier, without a single difficult call to a supplier.</div>
 </section>
 
-<!-- 06 -->
-<section class="ch" id="report">
-  <div class="ch-no">06 &middot; The report</div>
-  <h2>Four pages, from the headline to the line item</h2>
-  <p>The report is built to be read top-down in a weekly meeting: start with the overall score, drop into the supplier that is hurting it, check whether it is a timing issue, then pull the PO lines to chase. Every page shares the same year, month, category and purchasing group filters.</p>
+<!-- 6 -->
+<section id="recs">
+  <h2 class="sec"><span class="n">6</span>Recommendations</h2>
+  <div class="tbl-wrap">
+  <table class="data recs">
+    <caption>Table 5. Recommended actions</caption>
+    <thead><tr><th>#</th><th class="wrap">Recommendation</th><th class="wrap">Expected impact</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="wrap"><b>Report OTIF on both bases each month.</b>Keep line-based OTIF for supplier comparison and add value-weighted OTIF to the management summary.</td><td class="wrap">Large failures are no longer hidden by volume of small lines</td></tr>
+      <tr><td>2</td><td class="wrap"><b>Agree recovery plans with Suppliers A and B.</b>Request earlier vessel bookings and share a rolling forecast to extend their planning horizon.</td><td class="wrap">If both reached the 74% value-weighted rate of other suppliers, overall value-weighted OTIF would rise from 47% to about 74%</td></tr>
+      <tr><td>3</td><td class="wrap"><b>Check requested dates against lead time before release.</b>Flag POs requested ahead of the standard lead time and confirm urgent dates with the supplier in advance.</td><td class="wrap">Addresses the 21% of lines with a 56% OTIF rate</td></tr>
+      <tr><td>4</td><td class="wrap"><b>Make the confirmed ETA mandatory.</b>Require a confirmed date before a PO is marked as acknowledged, starting with the freight forwarder responsible for all 44 missing ETAs.</td><td class="wrap">Removes 44 automatic failures and improves data quality</td></tr>
+      <tr><td>5</td><td class="wrap"><b>Use the line detail page for weekly expediting.</b>Review open lines by supplier and confirmed ETA in the weekly supplier call.</td><td class="wrap">Structured follow-up on 587 open lines worth US$24.3M</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
 
+<!-- 7 -->
+<section id="report">
+  <h2 class="sec"><span class="n">7</span>Power BI report</h2>
+  <p>The report has four pages, ordered from summary to detail. All pages share the same filters for year, month, material category and purchasing group.</p>
   <div class="embed">
-    <iframe title="OTIF supplier delivery report" src="https://app.powerbi.com/view?r=eyJrIjoiYjg3MzRiZTctOGM0MS00ZTI0LTg1NTMtY2NiZWViZjU0M2UxIiwidCI6ImFmMWYzNzUzLTM5MjUtNGU2Zi05NDliLTk3YzAwNzMyMDgwMyIsImMiOjEwfQ%3D%3D" loading="lazy" allowfullscreen="true"></iframe>
+    <iframe title="Supplier delivery performance Power BI report" src="https://app.powerbi.com/view?r=eyJrIjoiYjg3MzRiZTctOGM0MS00ZTI0LTg1NTMtY2NiZWViZjU0M2UxIiwidCI6ImFmMWYzNzUzLTM5MjUtNGU2Zi05NDliLTk3YzAwNzMyMDgwMyIsImMiOjEwfQ%3D%3D" loading="lazy" allowfullscreen="true"></iframe>
   </div>
-
-  <div class="tour">
-    <div class="tour-tabs" role="tablist">
-      <button class="on" data-page="0"><span>Page 1</span>Overview</button>
-      <button data-page="1"><span>Page 2</span>Vendor scorecard</button>
-      <button data-page="2"><span>Page 3</span>Timing &amp; SLA</button>
-      <button data-page="3"><span>Page 4</span>Line detail</button>
-    </div>
-    <div class="tour-body" id="tour-body"></div>
+  <div class="tbl-wrap">
+  <table class="data pages">
+    <caption>Table 6. Report pages</caption>
+    <thead><tr><th class="wrap">Page</th><th class="wrap">Content</th></tr></thead>
+    <tbody>
+      <tr><td class="wrap"><b>1. Overview</b></td><td class="wrap">KPI cards for OTIF, OTD, In Full, value-weighted OTIF, missing ETAs and value at risk; monthly trend; OTIF status mix by month; category matrix</td></tr>
+      <tr><td class="wrap"><b>2. Vendor scorecard</b></td><td class="wrap">Scatter of spend against OTIF (bubble size by line count); value at risk by supplier; scorecard table with OTD, In Full, OTIF, weighted OTIF and average days late</td></tr>
+      <tr><td class="wrap"><b>3. Timing &amp; SLA</b></td><td class="wrap">Lead-time compliance KPIs; distribution of confirmed vs requested days; requested and confirmed dates against SLA by category; open lines</td></tr>
+      <tr><td class="wrap"><b>4. Line detail</b></td><td class="wrap">Full PO line table filtered by supplier, with quantities, requested and confirmed ETA, delay and status flags</td></tr>
+    </tbody>
+  </table>
   </div>
 </section>
 
-<!-- 07 -->
-<section class="ch" id="build">
-  <div class="ch-no">07 &middot; How it's built</div>
-  <h2>One fact table at PO line grain, four lookups</h2>
-  <p>The source was a purchase order export from the ERP, cleaned in Excel and Power Query. I calculated the status flags (on time, in full, SLA comparison) during preparation, so the DAX stays simple and every measure reads from the same 0/1 columns.</p>
+<!-- 8 -->
+<section id="model">
+  <h2 class="sec"><span class="n">8</span>Data model and DAX measures</h2>
+  <p>The model is a star schema with one fact table at PO line grain and four dimension tables. All relationships are many-to-one with single-direction filtering. The requested ETA has an inactive relationship to the date table, used for analysis by delivery month.</p>
 
   <figure class="fig model">
-    <svg viewBox="0 0 720 300" role="img" aria-label="Star schema: FactPOLine joined to DimDate, DimVendor, DimMaterial and DimCategory">
-      <g stroke="#B9B4A9" stroke-width="1.5" fill="none">
+    <p class="fig-cap">Figure 5. Data model</p>
+    <svg viewBox="0 0 720 300" role="img" aria-label="Star schema: FactPOLine linked to DimDate, DimVendor, DimMaterial and DimCategory">
+      <g stroke="#9a9a9a" stroke-width="1.2" fill="none">
         <path d="M265 140 H180"/><path d="M455 150 H540"/><path d="M360 85 V55"/><path d="M360 215 V245"/>
         <path d="M265 195 C200 195 115 215 115 170" stroke-dasharray="4 4"/>
       </g>
-      <rect x="265" y="85" width="190" height="130" rx="4" fill="#FFFFFF" stroke="#1D262B" stroke-width="1.5"/>
-      <text x="360" y="108" text-anchor="middle" class="tname">FactPOLine</text>
-      <text x="280" y="134" class="fk">PONumber, POItem</text>
-      <text x="280" y="152" class="fk">Qty, AmountUSD</text>
-      <text x="280" y="170" class="fk">ETA dates, SLA days</text>
-      <text x="280" y="188" class="fk">OTD / IF / OTIF flags</text>
-      <g fill="#E6EEF5" stroke="#2A6496" stroke-width="1.2">
-        <rect x="50" y="110" width="130" height="60" rx="4"/>
-        <rect x="540" y="120" width="130" height="60" rx="4"/>
-        <rect x="295" y="5" width="130" height="50" rx="4"/>
-        <rect x="295" y="245" width="130" height="50" rx="4"/>
+      <rect x="265" y="85" width="190" height="130" fill="#fff" stroke="#141414" stroke-width="1.5"/>
+      <rect x="265" y="85" width="190" height="28" fill="#141414"/>
+      <text x="360" y="104" text-anchor="middle" class="t" style="fill:#fff">FactPOLine</text>
+      <text x="278" y="134" class="f">PONumber, POItem</text>
+      <text x="278" y="152" class="f">Quantities, AmountUSD</text>
+      <text x="278" y="170" class="f">Requested / confirmed ETA</text>
+      <text x="278" y="188" class="f">OTD, In Full, OTIF flags</text>
+      <g fill="#f4f4f2" stroke="#6b6b6b" stroke-width="1">
+        <rect x="50" y="110" width="130" height="60"/>
+        <rect x="540" y="120" width="130" height="60"/>
+        <rect x="295" y="5" width="130" height="50"/>
+        <rect x="295" y="245" width="130" height="50"/>
       </g>
-      <text x="115" y="135" text-anchor="middle" class="tname">DimDate</text>
-      <text x="115" y="155" text-anchor="middle" class="fk">PO date (active)</text>
-      <text x="605" y="145" text-anchor="middle" class="tname">DimVendor</text>
-      <text x="605" y="165" text-anchor="middle" class="fk">name, country</text>
-      <text x="360" y="27" text-anchor="middle" class="tname">DimMaterial</text>
-      <text x="360" y="45" text-anchor="middle" class="fk">code, unit</text>
-      <text x="360" y="267" text-anchor="middle" class="tname">DimCategory</text>
-      <text x="360" y="285" text-anchor="middle" class="fk">AD, BO, PK, FG</text>
-      <text x="40" y="232" class="fk" style="font-size:11px">requested ETA (inactive)</text>
+      <text x="115" y="135" text-anchor="middle" class="t">DimDate</text>
+      <text x="115" y="155" text-anchor="middle" class="f">PO date (active)</text>
+      <text x="605" y="145" text-anchor="middle" class="t">DimVendor</text>
+      <text x="605" y="165" text-anchor="middle" class="f">Name, country</text>
+      <text x="360" y="27" text-anchor="middle" class="t">DimMaterial</text>
+      <text x="360" y="45" text-anchor="middle" class="f">Code, unit</text>
+      <text x="360" y="267" text-anchor="middle" class="t">DimCategory</text>
+      <text x="360" y="285" text-anchor="middle" class="f">AD, BO, PK, FG</text>
+      <text x="40" y="232" class="f" style="font-size:12px">Requested ETA (inactive)</text>
     </svg>
-    <figcaption>All relationships are many-to-one, single direction. Requested ETA has an inactive link to the date table for trend views by due month.</figcaption>
   </figure>
 
-  <p>The two core measures. The weighted version is the one that changed the conversation:</p>
-<pre><span class="c">-- share of PO lines on time and in full</span>
-<span class="k">OTIF</span> = DIVIDE ( SUM ( FactPOLine[OTIFFlag] ), [Lines] )
+  <p>Core measures:</p>
+<pre><span class="c">// Share of PO lines on time and in full</span>
+OTIF = DIVIDE ( SUM ( FactPOLine[OTIFFlag] ), [Lines] )
 
-<span class="c">-- same score, each line weighted by its USD value</span>
-<span class="k">OTIF(USD)</span> =
+<span class="c">// OTIF weighted by line value</span>
+OTIF(USD) =
 DIVIDE (
     SUMX ( FactPOLine, FactPOLine[AmountUSD] * FactPOLine[OTIFFlag] ),
     [Value USD]
 )
 
-<span class="c">-- dollar value of every line that failed</span>
-<span class="k">Value at Risk (USD)</span> =
-CALCULATE ( [Value USD], FactPOLine[OTIFFlag] = 0 )</pre>
-  <p class="muted">The model also has month-on-month measures for OTD, In Full and OTIF using <code>DATEADD</code>, a 95% target with a gap-to-target measure, and a supplier rank by value at risk using <code>RANKX</code> over <code>ALLSELECTED</code>, so the ranking respects whatever filters are set.</p>
+<span class="c">// Value of lines failing OTIF</span>
+Value at Risk (USD) =
+CALCULATE ( [Value USD], FactPOLine[OTIFFlag] = 0 )
+
+<span class="c">// Supplier ranking that respects report filters</span>
+Vendor Rank by Value at Risk =
+RANKX ( ALLSELECTED ( DimVendor[VendorName] ), [Value at Risk (USD)], , DESC, DENSE )</pre>
+  <p>The model also includes month-on-month change measures for OTD, In Full and OTIF using <code>DATEADD</code>, and an OTIF target with a gap-to-target measure.</p>
 </section>
 
-<!-- 08 -->
-<section class="ch" id="next">
-  <div class="ch-no">08 &middot; What I'd do next</div>
-  <h2>Recommendations for the purchasing team</h2>
-  <ol class="actions">
-    <li><b>Report OTIF two ways, every month.</b><span>Keep the line-count score for supplier fairness, and put the value-weighted score next to it so a few large failures can't hide.</span></li>
-    <li><b>Open a recovery plan with Suppliers A and B.</b><span>If these two performed like the other 37 suppliers do (74% by value), the value-weighted score would rise from 47% to about 74%. Ask for earlier vessel bookings or a rolling forecast so they can plan further out.</span></li>
-    <li><b>Stop requesting dates shorter than the lead time.</b><span>Flag any PO where the requested date is ahead of SLA before it is sent. If the date really is urgent, call the supplier first instead of finding out from the confirmation.</span></li>
-    <li><b>Fix the missing confirmations.</b><span>All 44 lines without an ETA come from one forwarder. Make the confirmed date a required field before the PO is marked as acknowledged.</span></li>
-    <li><b>Use page 4 as the chase list.</b><span>587 lines worth US$24.3M are still open. Filter by supplier and confirmed ETA, and work through it in the weekly call.</span></li>
-  </ol>
+<!-- 9 -->
+<section id="limits">
+  <h2 class="sec"><span class="n">9</span>Limitations</h2>
+  <ul class="plain">
+    <li>On-time status is based on the supplier's confirmed ETA, not the goods receipt date. The measure shows whether suppliers commit to requested dates; actual arrival may differ.</li>
+    <li>The period covers eight months of requested delivery dates. Some months contain only a few large base oil lines, so the value-weighted rate is sensitive to individual shipments.</li>
+    <li>Supplier names are anonymised in this write-up. The embedded report is the working version.</li>
+  </ul>
 
-  <div class="limits">
-    <b>What this analysis can't tell you</b>
-    <ul>
-      <li>"On time" is based on the supplier's confirmed ETA, not the goods receipt date. It measures whether suppliers commit to our dates, which is an early warning. Actual arrival can still differ.</li>
-      <li>The data covers about eight months of due dates. Some months have only a handful of large base oil lines, so the value-weighted line can swing on a single shipment.</li>
-      <li>Supplier names are anonymised here. The live report shows them because it is the working version.</li>
-    </ul>
-  </div>
-
-  <footer class="end">
-    <span>Danny Bui &middot; Supplier delivery review</span>
+  <div class="end">
+    <span>Danny Bui &middot; Supplier Delivery Performance Review</span>
     <a href="../../index.html">&larr; Back to portfolio</a>
-  </footer>
+  </div>
 </section>
 
 </main>
@@ -458,130 +451,112 @@ CALCULATE ( [Value USD], FactPOLine[OTIFFlag] = 0 )</pre>
 <script>
 (function(){
 const NS='http://www.w3.org/2000/svg';
-const BLUE='#2A6496', RUST='#C0602F', GRID='#ECE9E2', AXIS='#DCD8CF';
+const S1='#28609E', S2='#B8862B', GRID='#e6e6e6', AX='#141414';
 function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
-function tipFor(host){const t=document.createElement('div');t.className='tip';host.appendChild(t);return{
-  show(html,x,y){t.innerHTML=html;t.style.left=x+'px';t.style.top=y+'px';t.style.opacity=1;},
-  hide(){t.style.opacity=0;}};}
-function pos(host,svg,x,y){const r=svg.getBoundingClientRect(),h=host.getBoundingClientRect(),vb=svg.viewBox.baseVal;return[ (x/vb.width)*r.width+(r.left-h.left),(y/vb.height)*r.height+(r.top-h.top)];}
+function tipFor(host){const t=document.createElement('div');t.className='tip';host.appendChild(t);return{show(h,x,y){t.innerHTML=h;t.style.left=x+'px';t.style.top=y+'px';t.style.opacity=1;},hide(){t.style.opacity=0;}};}
+function pos(host,svg,x,y){const r=svg.getBoundingClientRect(),h=host.getBoundingClientRect(),vb=svg.viewBox.baseVal;return[(x/vb.width)*r.width+(r.left-h.left)+host.scrollLeft,(y/vb.height)*r.height+(r.top-h.top)];}
 
-/* ---------- trend ---------- */
+/* Figure 1 */
 const months=[
  {m:'Jan',n:236,l:78.0,u:81.4,v:7.4},{m:'Feb',n:171,l:81.9,u:69.7,v:7.0},{m:'Mar',n:253,l:78.3,u:42.0,v:8.6},{m:'Apr',n:269,l:71.0,u:56.7,v:9.3},
  {m:'May',n:285,l:79.6,u:37.1,v:14.5},{m:'Jun',n:252,l:63.5,u:40.3,v:12.3},{m:'Jul',n:347,l:76.9,u:41.6,v:17.2},{m:'Aug',n:248,l:54.0,u:39.1,v:15.3}];
 (function(){
-  const host=document.getElementById('trend'),W=680,H=290,L=40,R=70,T=12,B=30;
-  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Line chart of monthly OTIF by line count and by US dollar value'},host);
+  const host=document.getElementById('trend'),W=700,H=290,L=40,R=64,T=12,B=30;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Monthly OTIF by share of lines and share of US dollar value'},host);
   const x=i=>L+i*(W-L-R)/(months.length-1), y=v=>T+(100-v)*(H-T-B)/100;
-  [0,25,50,75,100].forEach(g=>{el('line',{x1:L,x2:W-R,y1:y(g),y2:y(g),stroke:g===0?AXIS:GRID},svg);el('text',{x:L-8,y:y(g)+4,'text-anchor':'end'},svg,g+'%');});
-  el('line',{x1:L,x2:W-R,y1:y(95),y2:y(95),stroke:'#7A858B','stroke-dasharray':'3 4'},svg);
-  el('text',{x:W-R+6,y:y(95)+4},svg,'Target 95%');
+  [0,20,40,60,80,100].forEach(g=>{el('line',{x1:L,x2:W-R,y1:y(g),y2:y(g),stroke:g===0?AX:GRID},svg);el('text',{x:L-8,y:y(g)+4,'text-anchor':'end'},svg,g+'%');});
+  el('line',{x1:L,x2:W-R,y1:y(95),y2:y(95),stroke:'#6b6b6b','stroke-dasharray':'4 4'},svg);
+  el('text',{x:W-R+6,y:y(95)+4},svg,'95%');
   months.forEach((d,i)=>el('text',{x:x(i),y:H-8,'text-anchor':'middle'},svg,d.m));
   const path=k=>months.map((d,i)=>(i?'L':'M')+x(i)+' '+y(d[k])).join(' ');
-  [['l',BLUE],['u',RUST]].forEach(([k,c])=>{
-    el('path',{d:path(k),fill:'none',stroke:c,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'},svg);
-    months.forEach((d,i)=>el('circle',{cx:x(i),cy:y(d[k]),r:4,fill:c,stroke:'#fff','stroke-width':2},svg));
+  [['l',S1],['u',S2]].forEach(([k,c])=>{
+    el('path',{d:path(k),fill:'none',stroke:c,'stroke-width':2},svg);
+    months.forEach((d,i)=>el('rect',{x:x(i)-3.5,y:y(d[k])-3.5,width:7,height:7,fill:c},svg));
   });
   const last=months.length-1;
   el('text',{x:W-R+8,y:y(months[last].l)+4,class:'lab'},svg,months[last].l.toFixed(1)+'%');
   el('text',{x:W-R+8,y:y(months[last].u)+4,class:'lab'},svg,months[last].u.toFixed(1)+'%');
-  const cross=el('line',{y1:T,y2:H-B,stroke:'#1D262B','stroke-width':1,opacity:0},svg);
-  const tip=tipFor(host);
+  const cross=el('line',{y1:T,y2:H-B,stroke:AX,'stroke-width':1,opacity:0},svg);
+  const tip=tipFor(host), w=(W-L-R)/(months.length-1);
   months.forEach((d,i)=>{
-    const w=(W-L-R)/(months.length-1);
     const hit=el('rect',{x:x(i)-w/2,y:T,width:w,height:H-T-B,fill:'transparent'},svg);
-    hit.addEventListener('mouseenter',()=>{cross.setAttribute('x1',x(i));cross.setAttribute('x2',x(i));cross.setAttribute('opacity',.25);
+    hit.addEventListener('mouseenter',()=>{cross.setAttribute('x1',x(i));cross.setAttribute('x2',x(i));cross.setAttribute('opacity',.3);
       const[px,py]=pos(host,svg,x(i),y(Math.max(d.l,d.u)));
-      tip.show(`<b>${d.m} 2026</b> &middot; ${d.n} lines, $${d.v}M<br><span class="k">By lines</span> ${d.l}% &nbsp; <span class="k">By value</span> ${d.u}%`,px,py-6);});
+      tip.show(`<b>${d.m} 2026</b> &middot; ${d.n} lines, US$${d.v}M<br><span class="k">Share of lines:</span> ${d.l.toFixed(1)}%<br><span class="k">Share of value:</span> ${d.u.toFixed(1)}%`,px,py-8);});
     hit.addEventListener('mouseleave',()=>{cross.setAttribute('opacity',0);tip.hide();});
   });
 })();
 
-/* ---------- suppliers ---------- */
+/* Figure 2 */
 const sup=[
- {id:'Supplier A',cat:'base oil',lines:39,val:23.74,otif:12.8,var:21.42},{id:'Supplier B',cat:'base oil',lines:73,val:18.99,otif:53.4,var:14.23},
- {id:'Supplier C',cat:'additives',lines:786,val:15.23,otif:87.5,var:2.91},{id:'Supplier D',cat:'base oil',lines:40,val:10.19,otif:67.5,var:2.69},
- {id:'Supplier E',cat:'additives',lines:362,val:9.48,otif:78.5,var:1.89},{id:'Supplier F',cat:'base oil',lines:172,val:4.44,otif:70.3,var:1.53},
- {id:'Supplier G',cat:'base oil',lines:46,val:1.09,otif:43.5,var:0.79},{id:'Supplier H',cat:'base oil',lines:63,val:1.41,otif:49.2,var:0.69},
- {id:'31 others',cat:'mixed',lines:432,val:6.69,otif:66.2,var:1.98}];
+ {id:'Supplier A',cat:'Base oil',lines:39,val:23.74,otif:12.8,var:21.42},{id:'Supplier B',cat:'Base oil',lines:73,val:18.99,otif:53.4,var:14.23},
+ {id:'Supplier C',cat:'Additives',lines:786,val:15.23,otif:87.5,var:2.91},{id:'Supplier D',cat:'Base oil',lines:40,val:10.19,otif:67.5,var:2.69},
+ {id:'Supplier E',cat:'Additives',lines:362,val:9.48,otif:78.5,var:1.89},{id:'Supplier F',cat:'Base oil',lines:172,val:4.44,otif:70.3,var:1.53},
+ {id:'Supplier G',cat:'Base oil',lines:46,val:1.09,otif:43.5,var:0.79},{id:'Supplier H',cat:'Base oil',lines:63,val:1.41,otif:49.2,var:0.69},
+ {id:'Other (31)',cat:'Mixed',lines:432,val:6.69,otif:66.2,var:1.98}];
 let sortKey='var';
 function drawSuppliers(){
   const host=document.getElementById('suppliers-chart');host.innerHTML='';
-  const W=680,row=30,T=6,L=150,R=150,H=T+row*sup.length+4;
-  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Bar chart of value at risk by supplier'},host);
+  const W=700,row=30,T=26,L=170,R=110,H=T+row*sup.length+6;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Bar chart of suppliers'},host);
   const tip=tipFor(host);
-  const list=[...sup].sort((a,b)=>a.id==='31 others'?1:b.id==='31 others'?-1:b[sortKey]-a[sortKey]);
-  const max=sortKey==='var'?22:800, key=sortKey;
-  const sx=v=>L+v/max*(W-L-R);
+  const list=[...sup].sort((a,b)=>a.id.startsWith('Other')?1:b.id.startsWith('Other')?-1:b[sortKey]-a[sortKey]);
+  const max=sortKey==='var'?25:800, sx=v=>L+v/max*(W-L-R);
+  const ticks=sortKey==='var'?[0,5,10,15,20,25]:[0,200,400,600,800];
+  ticks.forEach(t=>{el('line',{x1:sx(t),x2:sx(t),y1:T-4,y2:H-6,stroke:t===0?AX:GRID},svg);el('text',{x:sx(t),y:T-10,'text-anchor':'middle'},svg,t);});
+  el('text',{x:0,y:T-10,class:'lab','font-weight':'600'},svg,'Supplier');
+  el('text',{x:W,y:T-10,'text-anchor':'end',class:'lab','font-weight':'600'},svg,'OTIF');
   list.forEach((d,i)=>{
     const yy=T+i*row, focus=(d.id==='Supplier A'||d.id==='Supplier B');
-    const c=focus?RUST:BLUE;
-    el('text',{x:0,y:yy+row/2+4,class:'lab'},svg,d.id);
-    el('text',{x:82,y:yy+row/2+4},svg,d.cat);
-    const w=Math.max(2,sx(d[key])-L);
-    el('path',{d:`M${L} ${yy+7} H${L+w-4} Q${L+w} ${yy+7} ${L+w} ${yy+11} V${yy+row-11} Q${L+w} ${yy+row-7} ${L+w-4} ${yy+row-7} H${L} Z`,fill:c,opacity:(key==='lines'||focus||d.id==='31 others')?1:.85},svg);
-    el('text',{x:L+w+8,y:yy+row/2+4,class:'val'},svg,key==='var'?('$'+d.var.toFixed(1)+'M'):(d.lines+' lines'));
-    el('text',{x:W,y:yy+row/2+4,'text-anchor':'end',class:'val'},svg,d.otif+'% OTIF');
+    el('text',{x:0,y:yy+row/2+5,class:'lab'},svg,d.id);
+    el('text',{x:86,y:yy+row/2+5},svg,d.cat);
+    const w=Math.max(1.5,sx(d[sortKey])-L);
+    el('rect',{x:L,y:yy+7,width:w,height:row-14,fill:focus?S2:S1},svg);
+    el('text',{x:L+w+6,y:yy+row/2+5,class:'val'},svg,sortKey==='var'?d.var.toFixed(1):d.lines);
+    el('text',{x:W,y:yy+row/2+5,'text-anchor':'end',class:'val'},svg,d.otif.toFixed(1)+'%');
     const hit=el('rect',{x:0,y:yy,width:W,height:row,fill:'transparent'},svg);
-    hit.addEventListener('mouseenter',()=>{const[px,py]=pos(host,svg,L+w/2+40,yy);
-      tip.show(`<b>${d.id}</b> &middot; ${d.cat}<br><span class="k">Lines</span> ${d.lines} &nbsp; <span class="k">Spend</span> $${d.val}M<br><span class="k">OTIF</span> ${d.otif}% &nbsp; <span class="k">At risk</span> $${d.var}M`,px,py);});
+    hit.addEventListener('mouseenter',()=>{const[px,py]=pos(host,svg,L+w/2+60,yy);
+      tip.show(`<b>${d.id}</b> (${d.cat})<br><span class="k">Lines:</span> ${d.lines} &nbsp; <span class="k">Spend:</span> US$${d.val}M<br><span class="k">OTIF:</span> ${d.otif}% &nbsp; <span class="k">Value at risk:</span> US$${d.var}M`,px,py);});
     hit.addEventListener('mouseleave',()=>tip.hide());
   });
 }
-document.querySelectorAll('[data-sort]').forEach(b=>b.addEventListener('click',()=>{
-  sortKey=b.dataset.sort;document.querySelectorAll('[data-sort]').forEach(x=>x.classList.toggle('on',x===b));drawSuppliers();}));
+document.querySelectorAll('[data-sort]').forEach(b=>b.addEventListener('click',()=>{sortKey=b.dataset.sort;document.querySelectorAll('[data-sort]').forEach(x=>x.classList.toggle('on',x===b));drawSuppliers();}));
 drawSuppliers();
 
-/* ---------- simple bar helper ---------- */
-function bars(id,data,opts){
-  const host=document.getElementById(id),W=680,H=opts.h||220,L=10,T=24,B=40;
-  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':opts.aria},host);
-  const tip=tipFor(host);
-  const n=data.length, slot=(W-L*2)/n, bw=Math.min(110,slot*.56), max=opts.max;
-  const y=v=>T+(1-v/max)*(H-T-B);
-  el('line',{x1:L,x2:W-L,y1:H-B,y2:H-B,stroke:AXIS},svg);
+/* Figures 3 and 4 */
+function bars(id,data,o){
+  const host=document.getElementById(id),W=700,H=o.h||230,L=40,R=10,T=14,B=o.b||34;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':o.aria},host);
+  const tip=tipFor(host), y=v=>T+(1-v/o.max)*(H-T-B);
+  o.ticks.forEach(t=>{el('line',{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:t===0?AX:GRID},svg);el('text',{x:L-8,y:y(t)+4,'text-anchor':'end'},svg,o.tf(t));});
+  const slot=(W-L-R)/data.length, bw=Math.min(96,slot*.5);
   data.forEach((d,i)=>{
-    const cx=L+slot*i+slot/2, top=y(d.v), x0=cx-bw/2, base=H-B;
-    el('path',{d:`M${x0} ${base} V${top+4} Q${x0} ${top} ${x0+4} ${top} H${x0+bw-4} Q${x0+bw} ${top} ${x0+bw} ${top+4} V${base} Z`,fill:d.c||BLUE},svg);
-    el('text',{x:cx,y:top-8,'text-anchor':'middle',class:'val'},svg,opts.fmt(d));
-    el('text',{x:cx,y:H-B+18,'text-anchor':'middle',class:'lab'},svg,d.k);
-    if(d.k2)el('text',{x:cx,y:H-B+33,'text-anchor':'middle'},svg,d.k2);
-    const hit=el('rect',{x:cx-slot/2,y:T-20,width:slot,height:H-T-B+20,fill:'transparent'},svg);
-    hit.addEventListener('mouseenter',()=>{const[px,py]=pos(host,svg,cx,top);tip.show(d.tip,px,py-20);});
+    const cx=L+slot*i+slot/2, top=y(d.v);
+    el('rect',{x:cx-bw/2,y:top,width:bw,height:y(0)-top,fill:d.c||S1},svg);
+    el('text',{x:cx,y:top-7,'text-anchor':'middle',class:'val'},svg,o.fmt(d));
+    el('text',{x:cx,y:H-B+19,'text-anchor':'middle',class:'lab'},svg,d.k);
+    if(d.k2)el('text',{x:cx,y:H-B+35,'text-anchor':'middle'},svg,d.k2);
+    const hit=el('rect',{x:cx-slot/2,y:T,width:slot,height:H-T-B,fill:'transparent'},svg);
+    hit.addEventListener('mouseenter',()=>{const[px,py]=pos(host,svg,cx,top);tip.show(d.tip,px,py-14);});
     hit.addEventListener('mouseleave',()=>tip.hide());
   });
 }
 bars('late-chart',[
-  {k:'8–14 days',v:260,c:RUST,tip:'<b>8 to 14 days late</b><br>260 lines, 64% of late lines'},
-  {k:'15–30 days',v:116,tip:'<b>15 to 30 days late</b><br>116 lines, 28%'},
-  {k:'31–60 days',v:19,tip:'<b>31 to 60 days late</b><br>19 lines, 5%'},
-  {k:'60+ days',v:13,tip:'<b>More than 60 days late</b><br>13 lines, 3%'}],
-  {max:280,fmt:d=>d.v+' lines',aria:'Bar chart of late lines by days late'});
+  {k:'8–14 days',v:260,c:S2,tip:'<b>8–14 days late</b><br>260 lines (64%)'},
+  {k:'15–30 days',v:116,tip:'<b>15–30 days late</b><br>116 lines (28%)'},
+  {k:'31–60 days',v:19,tip:'<b>31–60 days late</b><br>19 lines (5%)'},
+  {k:'Over 60 days',v:13,tip:'<b>Over 60 days late</b><br>13 lines (3%)'}],
+  {max:300,ticks:[0,100,200,300],tf:t=>t,fmt:d=>d.v,aria:'Late lines by days late'});
 bars('sla-chart',[
-  {k:'Faster than lead time',k2:'424 lines',v:55.9,c:RUST,tip:'<b>Requested more than 7 days ahead of SLA</b><br>424 lines, 55.9% OTIF'},
-  {k:'Within lead time',k2:'659 lines',v:83.6,tip:'<b>Requested within ±7 days of SLA</b><br>659 lines, 83.6% OTIF'},
-  {k:'Later than lead time',k2:'978 lines',v:72.9,tip:'<b>Requested more than 7 days after SLA</b><br>978 lines, 72.9% OTIF'}],
-  {max:100,h:240,fmt:d=>d.v+'%',aria:'Bar chart of OTIF rate by requested date vs standard lead time'});
+  {k:'Earlier than lead time',k2:'424 lines',v:55.9,c:S2,tip:'<b>Requested &gt;7 days before standard lead time</b><br>424 lines, 55.9% OTIF'},
+  {k:'Within lead time',k2:'659 lines',v:83.6,tip:'<b>Requested within ±7 days of lead time</b><br>659 lines, 83.6% OTIF'},
+  {k:'Later than lead time',k2:'978 lines',v:72.9,tip:'<b>Requested &gt;7 days after standard lead time</b><br>978 lines, 72.9% OTIF'}],
+  {max:100,h:250,b:48,ticks:[0,25,50,75,100],tf:t=>t+'%',fmt:d=>d.v.toFixed(1)+'%',aria:'OTIF rate by requested date compared with lead time'});
 
-/* ---------- report tour ---------- */
-const pages=[
- {h:'Overview',p:'The headline page. Six cards across the top: OTIF, OTD, In Full, value-weighted OTIF, lines missing a confirmed ETA, and value at risk.',
-  li:['Trend line of OTD, In Full and OTIF by month','100% stacked column of OTIF status per month, split into timing fail, quantity fail and missing ETA','Matrix by material category with value and value at risk']},
- {h:'Vendor scorecard',p:'Where buyers spend most of their time. The scatter plots spend against OTIF, so large unreliable suppliers sit in the bottom right.',
-  li:['Scatter of value vs OTIF, bubble size by number of lines','Bar chart of value at risk by supplier','Scorecard table: lines, value, OTD, In Full, OTIF, weighted OTIF, average days late, missing ETAs']},
- {h:'Timing & SLA',p:'Answers "is it the supplier or is it us?". Compares requested and confirmed dates against the standard lead time for each material.',
-  li:['Cards for requested-within-SLA %, confirmed-within-SLA %, average days late, late lines','Distribution of confirmed minus requested days, coloured by on-time status','Two 100% bars by category: requested date vs SLA, confirmed date vs SLA','Open lines table with quantity still to deliver']},
- {h:'Line detail',p:'The working page. A supplier list on the left filters a full PO line table, so a buyer can open it before a supplier call and read down the list.',
-  li:['PO number and item, material, ordered and confirmed quantity','Requested and confirmed ETA with delay in days','OTD, In Full and OTIF status per line, and USD value']}];
-function showPage(i){const p=pages[i];document.getElementById('tour-body').innerHTML=`<h4>${p.h}</h4><p>${p.p}</p><ul>${p.li.map(x=>`<li>${x}</li>`).join('')}</ul>`;
-  document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('on',+b.dataset.page===i));}
-document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(+b.dataset.page)));
-showPage(0);
-
-/* ---------- toc highlight ---------- */
+/* contents highlight */
 const links=[...document.querySelectorAll('.toc a')];
-const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));}});},{rootMargin:'-30% 0px -60% 0px'});
-document.querySelectorAll('section.ch').forEach(s=>io.observe(s));
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));}});},{rootMargin:'-20% 0px -70% 0px'});
+document.querySelectorAll('section[id], h3[id]').forEach(s=>io.observe(s));
 })();
 </script>
 </body>
